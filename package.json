@@ -1,0 +1,29 @@
+{
+  "name": "qbittorrent-auto-rss",
+  "version": "0.1.0",
+  "description": "Command line tool to automate torrent download for qBittorrent from an RSS source, to a customizable save paths",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/diegogurpegui/qbittorrent-auto-rss.git"
+  },
+  "keywords": [
+    "qbittorrent",
+    "torrent",
+    "rss",
+    "auto"
+  ],
+  "author": "Diego H. Gurpegui",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/diegogurpegui/qbittorrent-auto-rss/issues"
+  },
+  "homepage": "https://github.com/diegogurpegui/qbittorrent-auto-rss#readme",
+  "dependencies": {
+    "commander": "^2.16.0",
+    "dotenv": "^6.0.0"
+  }
+}
