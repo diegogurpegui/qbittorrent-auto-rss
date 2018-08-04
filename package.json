@@ -24,6 +24,8 @@
   "homepage": "https://github.com/diegogurpegui/qbittorrent-auto-rss#readme",
   "dependencies": {
     "commander": "^2.16.0",
-    "dotenv": "^6.0.0"
+    "dotenv": "^6.0.0",
+    "request": "^2.87.0",
+    "rss-parser": "^3.4.2"
   }
 }

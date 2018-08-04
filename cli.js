@@ -1,6 +1,7 @@
 const program = require("commander")
 const fs = require("fs")
 const config = require("./config")
+const FeedsProcessor = require("./feedsProcessor")
 
 program
   .version("0.1.0", "-v, --version")
@@ -24,13 +25,9 @@ program
       // check the file existence
       fs.statSync(feedsFilePath)
 
-      let feedsObj = require(feedsFilePath)
-
-      // iterate the different feeds
-      for (let i = 0; i < feedsObj.feeds.length; i++) {
-        let feed = feedsObj.feeds[i]
-        console.log(feed.url)
-      }
+      // process the file
+      let feedsProcessor = new FeedsProcessor()
+      feedsProcessor.fetch(feedsFilePath)
     } catch (err) {
       if (err.code === "ENOENT") {
         console.error(`The Feeds file ("${feedsFilePath}") does not exist.`)
