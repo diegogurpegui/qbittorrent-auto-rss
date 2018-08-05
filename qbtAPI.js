@@ -113,7 +113,8 @@ class QbtAPI {
 
     let apiData = {
       urls: urls.join("\n"),
-      savepath: params.savepath
+      savepath: params.savepath,
+      category: params.category||""
     }
     await this.call("POST", "/command/download", apiData)
   }

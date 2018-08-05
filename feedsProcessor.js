@@ -1,10 +1,24 @@
+const fs = require("fs")
+const crypto = require("crypto")
 const RssParser = require("rss-parser")
 const QbtAPI = require("./qbtAPI")
+
+const feedsLockFile = "feeds-lock.json"
 
 class FeedsProcessor {
   constructor() {
     this.rssParser = new RssParser()
     this.qbtAPI = new QbtAPI()
+
+    try {
+      // check the file existence
+      fs.statSync(feedsLockFile)
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        // if the file does not exist, create it
+        fs.writeFileSync(feedsLockFile, "")
+      }
+    }
   }
 
   async fetch(feedsSource) {
@@ -24,27 +38,61 @@ class FeedsProcessor {
   }
 
   async fetchSingle(feedObject) {
-    console.log(feedObject.url)
-    console.log("---------->>")
+    // open the feeds lock to check downloaded torrents
+    let feedsLockRaw = fs.readFileSync(feedsLockFile)
+    let feedsLock = {}
+    if (feedsLockRaw.length > 0) {
+      feedsLock = JSON.parse(feedsLockRaw)
+    }
+
+    console.log("Feed: " + feedObject.url)
+
+    let feedHash = crypto
+      .createHash("sha256")
+      .update(feedObject.url)
+      .digest("hex")
+    let downloadedGuids = []
+    // check if hash already exists
+    if (feedsLock.hasOwnProperty(feedHash)) {
+      downloadedGuids = feedsLock[feedHash].downloaded_guids
+    } else {
+      // initialize the torrents feed in the lock file
+      feedsLock[feedHash] = {
+        downloaded_guids: []
+      }
+    }
 
     let torrentUrls = []
 
     let feed = await this.rssParser.parseURL(feedObject.url)
     for (let i = 0; i < feed.items.length; i++) {
       let item = feed.items[i]
-      // first check if he item has to be processed
-      if (this.matchFilters(item, feedObject.filters || [])) {
-        //console.log("Title: " + item.title)
-        torrentUrls.push(item.link)
+      // check wether the item was already downloaded
+      if (downloadedGuids.includes(item.guid)) {
+        continue
       }
+      // check if he item has to be processed
+      if (!this.matchFilters(item, feedObject.filters || [])) {
+        continue
+      }
+      // if all validation passed, add the URL to the download list
+      torrentUrls.push(item.link)
+      // and add the GUID to the "downloaded" ones
+      downloadedGuids.push(item.guid)
     }
     // call Qbt to download
     let params = {
-      savepath: feedObject.savepath
+      savepath: feedObject.savepath,
+      category: feedObject.category || ""
     }
-    await this.qbtAPI.download(torrentUrls, params)
-
-    console.log("<<---------")
+    try {
+      await this.qbtAPI.download(torrentUrls, params)
+      // if everything went OK, update the lock file
+      feedsLock[feedHash].downloaded_guids = downloadedGuids
+      fs.writeFileSync(feedsLockFile, JSON.stringify(feedsLock))
+    } catch (err) {
+      console.error("Download.", err)
+    }
   }
 
   matchFilters(item, filters) {
