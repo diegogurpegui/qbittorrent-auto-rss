@@ -8,7 +8,11 @@ const config = {
     user: process.env.QBT_USER || "admin",
     pass: process.env.QBT_PASS || "adminadmin"
   },
-  feeds_file: process.env.FEEDS_FILE || ""
+  feeds_file: process.env.FEEDS_FILE || "",
+  logger: {
+    directory: process.env.LOGS_DIR || "logs",
+    console: process.env.LOGS_CONSOLE || false,
+  }
 }
 
 module.exports = config

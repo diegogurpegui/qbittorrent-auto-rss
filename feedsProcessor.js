@@ -2,6 +2,7 @@ const fs = require("fs")
 const crypto = require("crypto")
 const RssParser = require("rss-parser")
 const QbtAPI = require("./qbtAPI")
+const logger = require("./logger")
 
 const feedsLockFile = "feeds-lock.json"
 
@@ -17,6 +18,8 @@ class FeedsProcessor {
       if (err.code === "ENOENT") {
         // if the file does not exist, create it
         fs.writeFileSync(feedsLockFile, "")
+      } else {
+        logger.error("Loading feeds lock file.", err)
       }
     }
   }
@@ -30,10 +33,10 @@ class FeedsProcessor {
       // iterate the different feeds
       for (let i = 0; i < feedsObj.feeds.length; i++) {
         let feedObject = feedsObj.feeds[i]
-        this.fetchSingle(feedObject)
+        await this.fetchSingle(feedObject)
       }
     } catch (err) {
-      console.error("Error fetching.")
+      logger.error("Error fetching.")
     }
   }
 
@@ -45,7 +48,7 @@ class FeedsProcessor {
       feedsLock = JSON.parse(feedsLockRaw)
     }
 
-    console.log("Feed: " + feedObject.url)
+    logger.info("Feed: " + feedObject.url)
 
     let feedHash = crypto
       .createHash("sha256")
@@ -89,12 +92,18 @@ class FeedsProcessor {
       await this.qbtAPI.download(torrentUrls, params)
       // if everything went OK, update the lock file
       feedsLock[feedHash].downloaded_guids = downloadedGuids
-      fs.writeFileSync(feedsLockFile, JSON.stringify(feedsLock))
+      fs.writeFileSync(feedsLockFile, JSON.stringify(feedsLock, null, " "))
     } catch (err) {
-      console.error("Download.", err)
+      logger.error("Download.", err)
     }
   }
 
+  /**
+   * Indicates whether the RSS item match the filters
+   * @param {object} item
+   * @param {object} filters
+   * @returns {boolean}
+   */
   matchFilters(item, filters) {
     for (let f = 0; f < filters.length; f++) {
       let filter = filters[f]

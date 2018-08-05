@@ -1,5 +1,6 @@
 const request = require("request")
 const config = require("./config")
+const logger = require("./logger")
 
 class QbtAPI {
   constructor() {
@@ -25,7 +26,7 @@ class QbtAPI {
       url: url,
       headers: {
         Referer: baseUrl,
-        "Cookie": this.cookie || ""
+        Cookie: this.cookie || ""
       }
     }
     if (method === "POST") {
@@ -39,10 +40,10 @@ class QbtAPI {
     // create the return promise
     return new Promise((resolve, reject) => {
       // call the API
-      console.log("Calling: " + options.url)
+      logger.info("Calling: " + options.url)
       request(options, (err, res, body) => {
         if (err) {
-          console.error("API call failed:", err)
+          logger.error("API call failed:", err)
           reject(err)
           return
         }
@@ -51,6 +52,9 @@ class QbtAPI {
     })
   }
 
+  /**
+   * Authenticate against qBittorrent API
+   */
   async authenticate() {
     let self = this
     let baseUrl = "http://" + this.apiHost + ":" + this.apiPort
@@ -71,10 +75,10 @@ class QbtAPI {
     }
     return new Promise(async (resolve, reject) => {
       // call the API
-      console.log("Calling: " + options.url)
+      logger.info("Calling: " + options.url)
       request(options, (err, res, body) => {
         if (err) {
-          console.error("API call failed:", err)
+          logger.error("API call failed:", err)
           reject(err)
           return
         }
@@ -83,7 +87,7 @@ class QbtAPI {
           !res.headers.hasOwnProperty("Set-Cookie") &&
           !res.headers.hasOwnProperty("set-cookie")
         ) {
-          console.error("Login error.", body)
+          logger.error("Login error.", body)
           reject(body)
         } else {
           let cookie = res.headers["Set-Cookie"] || res.headers["set-cookie"]
@@ -93,11 +97,18 @@ class QbtAPI {
           }
           // now remove the unnecessary part
           self.cookie = cookie.substring(0, cookie.indexOf(";"))
-          console.log("Auth response.", self.cookie)
+          logger.info("Auth response.", self.cookie)
           resolve({ cookie: self.cookie })
         }
       })
     })
+  }
+
+  /**
+   * Gets the qBittorrent version of the server
+   */
+  getVersion() {
+    return this.call("GET", "/version/qbittorrent")
   }
 
   /**
@@ -114,7 +125,7 @@ class QbtAPI {
     let apiData = {
       urls: urls.join("\n"),
       savepath: params.savepath,
-      category: params.category||""
+      category: params.category || ""
     }
     await this.call("POST", "/command/download", apiData)
   }

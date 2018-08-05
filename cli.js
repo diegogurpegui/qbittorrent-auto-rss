@@ -1,6 +1,8 @@
 const program = require("commander")
 const fs = require("fs")
 const config = require("./config")
+const logger = require("./logger")
+const QbtAPI = require("./qbtAPI")
 const FeedsProcessor = require("./feedsProcessor")
 
 program
@@ -10,15 +12,34 @@ program
   )
 
 program
+  .command("qbtversion")
+  .description("Gets the qBittorrent version.")
+  .action(() => {
+    logger.info("Getting qBt version")
+    this.qbtAPI = new QbtAPI()
+
+    let result = this.qbtAPI
+      .getVersion()
+      .then(res => {
+        console.log(res)
+      })
+      .catch(err => {
+        logger.error("Error getting version.", err)
+      })
+  })
+
+program
   .command("fetch")
   .option("-f, --feeds <feedsFilePath>")
   .description("Fetch the torrents from the feeds defined in the 'feeds' file.")
   .action(cmd => {
+    logger.info("Fetch started")
+
     let feedsFilePath = cmd.feeds || config.feeds_file
 
     // check that the file path is not empty
     if (typeof feedsFilePath === "undefined" || feedsFilePath == "") {
-      console.error("Feeds file not specified.")
+      logger.error("Feeds file not specified.")
       return
     }
     try {
@@ -30,9 +51,9 @@ program
       feedsProcessor.fetch(feedsFilePath)
     } catch (err) {
       if (err.code === "ENOENT") {
-        console.error(`The Feeds file ("${feedsFilePath}") does not exist.`)
+        logger.error(`The Feeds file ("${feedsFilePath}") does not exist.`)
       } else {
-        console.error("Error: " + err)
+        logger.error("Error: " + err)
       }
     }
   })
