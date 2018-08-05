@@ -122,12 +122,17 @@ class QbtAPI {
       urls = [urls]
     }
 
-    let apiData = {
-      urls: urls.join("\n"),
-      savepath: params.savepath,
-      category: params.category || ""
+    if (urls.length > 0) {
+      let apiData = {
+        urls: urls.join("\n"),
+        savepath: params.savepath,
+        category: params.category || ""
+      }
+      await this.call("POST", "/command/download", apiData)
+    } else {
+      // no URLs to download
+      logger.info("No URLs to download.")
     }
-    await this.call("POST", "/command/download", apiData)
   }
 }
 

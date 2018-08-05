@@ -28,7 +28,12 @@ class FeedsProcessor {
     try {
       await this.qbtAPI.authenticate()
 
-      let feedsObj = require(feedsSource)
+      //let feedsObj = require(feedsSource)
+      let feedsRaw = fs.readFileSync(feedsSource)
+      let feedsObj = { feeds: [] }
+      if (feedsRaw.length > 0) {
+        feedsObj = JSON.parse(feedsRaw)
+      }
 
       // iterate the different feeds
       for (let i = 0; i < feedsObj.feeds.length; i++) {
@@ -36,7 +41,7 @@ class FeedsProcessor {
         await this.fetchSingle(feedObject)
       }
     } catch (err) {
-      logger.error("Error fetching.")
+      logger.error("Error fetching.", err)
     }
   }
 
