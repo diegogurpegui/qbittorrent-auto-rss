@@ -28,8 +28,10 @@ function logMessage(level, msg, data) {
     data = ""
   } else if (data instanceof Object) {
     data = " => " + JSON.stringify(data)
+  } else {
+    data = " => " + data
   }
-  let message = `[${dateStr}] - ${level} - ${msg}` + "\r\n"
+  let message = `[${dateStr}] - ${level} - ${msg} ${data}` + "\r\n"
   logFileStream.write(message)
 }
 
@@ -48,7 +50,7 @@ let logger = {
   },
 
   error: function(msg, data) {
-    logMessage("debug", msg, data)
+    logMessage("error", msg, data)
   }
 }
 
