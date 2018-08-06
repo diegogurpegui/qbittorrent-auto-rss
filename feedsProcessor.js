@@ -93,19 +93,22 @@ class FeedsProcessor {
       downloadedGuids.push(item.guid)
     }
     logger.debug("Feed valid items: " + torrentUrls.length)
-    // call Qbt to download
-    let params = {
-      savepath: feedObject.savepath,
-      category: feedObject.category || ""
-    }
-    try {
-      await this.qbtAPI.download(torrentUrls, params)
-      logger.debug("Torrents queued for download.")
-      // if everything went OK, update the lock file
-      feedsLock[feedHash].downloaded_guids = downloadedGuids
-      fs.writeFileSync(feedsLockFile, JSON.stringify(feedsLock, null, " "))
-    } catch (err) {
-      logger.error("Download.", err)
+    // only cal the API if there are torrents to download
+    if (torrentUrls.length > 0) {
+      // call Qbt to download
+      let params = {
+        savepath: feedObject.savepath,
+        category: feedObject.category || ""
+      }
+      try {
+        await this.qbtAPI.download(torrentUrls, params)
+        logger.debug("Torrents queued for download.")
+        // if everything went OK, update the lock file
+        feedsLock[feedHash].downloaded_guids = downloadedGuids
+        fs.writeFileSync(feedsLockFile, JSON.stringify(feedsLock, null, " "))
+      } catch (err) {
+        logger.error("Download.", err)
+      }
     }
   }
 
