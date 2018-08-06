@@ -53,12 +53,14 @@ class FeedsProcessor {
       feedsLock = JSON.parse(feedsLockRaw)
     }
 
-    logger.info("Feed: " + feedObject.url)
+    logger.info("Processing feed: " + feedObject.url)
 
     let feedHash = crypto
       .createHash("sha256")
       .update(feedObject.url)
       .digest("hex")
+    logger.debug("Feed hash: " + feedHash)
+
     let downloadedGuids = []
     // check if hash already exists
     if (feedsLock.hasOwnProperty(feedHash)) {
@@ -73,6 +75,8 @@ class FeedsProcessor {
     let torrentUrls = []
 
     let feed = await this.rssParser.parseURL(feedObject.url)
+    logger.debug("Feed loaded from URL.")
+    logger.debug("Feed items: " + feed.items.length)
     for (let i = 0; i < feed.items.length; i++) {
       let item = feed.items[i]
       // check wether the item was already downloaded
@@ -88,6 +92,7 @@ class FeedsProcessor {
       // and add the GUID to the "downloaded" ones
       downloadedGuids.push(item.guid)
     }
+    logger.debug("Feed valid items: " + torrentUrls.length)
     // call Qbt to download
     let params = {
       savepath: feedObject.savepath,
@@ -95,6 +100,7 @@ class FeedsProcessor {
     }
     try {
       await this.qbtAPI.download(torrentUrls, params)
+      logger.debug("Torrents queued for download.")
       // if everything went OK, update the lock file
       feedsLock[feedHash].downloaded_guids = downloadedGuids
       fs.writeFileSync(feedsLockFile, JSON.stringify(feedsLock, null, " "))
