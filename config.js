@@ -12,6 +12,7 @@ const config = {
   logger: {
     directory: process.env.LOGS_DIR || "logs",
     console: process.env.LOGS_CONSOLE || false,
+    level: process.env.LOGS_LEVEL || "debug"
   }
 }
 
