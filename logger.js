@@ -26,10 +26,14 @@ function logMessage(level, msg, data) {
   let dateStr = new Date().toISOString()
   if (typeof data === "undefined") {
     data = ""
-  } else if (data instanceof Object) {
-    data = " => " + JSON.stringify(data)
   } else {
-    data = " => " + data
+    // try to parse the object to string
+    try {
+      data = " => " + JSON.stringify(data)
+    } catch (err) {
+      // couldn't parse, then concat as it is
+      data = " => " + data
+    }
   }
   let message = `[${dateStr}] - ${level} - ${msg} ${data}` + "\r\n"
   logFileStream.write(message)
