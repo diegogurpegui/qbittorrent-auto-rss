@@ -37,8 +37,13 @@ class FeedsProcessor {
 
       // iterate the different feeds
       for (let i = 0; i < feedsObj.feeds.length; i++) {
-        let feedObject = feedsObj.feeds[i]
-        await this.fetchSingle(feedObject)
+        // try catch to avoid blocking other feeds
+        try {
+          let feedObject = feedsObj.feeds[i]
+          await this.fetchSingle(feedObject)
+        } catch (err) {
+          logger.error("Failed fetching. ", err)
+        }
       }
     } catch (err) {
       logger.error("Error fetching.", err)
@@ -74,8 +79,19 @@ class FeedsProcessor {
 
     let torrentUrls = []
 
-    let feed = await this.rssParser.parseURL(feedObject.url)
-    logger.debug("Feed loaded from URL.")
+    // try to fetch the RSS XML from the URL
+    let feed = {}
+    try {
+      feed = await this.rssParser.parseURL(feedObject.url)
+      logger.debug("Feed loaded from URL.")
+    } catch (err) {
+      err = {
+        message: "Parsing URL.",
+        innerErr: err
+      }
+      throw err
+    }
+    // now iterate through the feed items (torrents) to process each
     logger.debug("Feed items: " + feed.items.length)
     for (let i = 0; i < feed.items.length; i++) {
       let item = feed.items[i]
