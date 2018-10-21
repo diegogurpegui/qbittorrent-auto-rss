@@ -23,8 +23,9 @@ npm install
 ```
 
 ### Configuration
-Then, you need to specify where you are going to put the [`feeds.json` file](#the-feeds-file). This is done by specifying the environment variable `FEEDS_FILE`.
-You also need to specify the connection parameters to connect to qBittorrent. And finally, you can configure the logging capabilities of the app.
+You need to specify the connection parameters to connect to qBittorrent. 
+Also, you can configure the logging capabilities of the app.
+Finally, you have the option to specify a default path of where you are going to put the [`feeds.json` file](#the-feeds-file). This is done by setting the environment variable `FEEDS_FILE`. If you don't do this you'll need to pass the file path from command line.
 
 Here are all the environment variables you need to set (which you can alternatively **define in an `.env` in the application root directory**):
 ```
@@ -81,10 +82,11 @@ Here is an example on how to set it up
 
 ## Commands Reference
 
-### version
+### --version
 Version of the application
 ```
-node cli version
+node cli --version
+node cli -v
 ```
 
 ### qBittorrent version
@@ -93,8 +95,10 @@ Version of the qBittorrent the app connects to
 node cli qbtversion
 ```
 
-### version
-Start the fetch process of the torrents based on the RSS feeds configured in the `feeds.json` file.
+### fetch
+Start the fetch process of the torrents based on the RSS feeds configured in the `feeds.json` file. Optionally you can pass the path to the `feeds.json` file.
 ```
 node cli fetch
+node cli fetch --fetch /path/to/feeds.json
+node cli fetch -f /path/to/feeds.json
 ```
