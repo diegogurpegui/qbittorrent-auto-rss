@@ -4,7 +4,7 @@ This is particularly useful for sources of torrent files that use to have period
 
 It is a very simple NodeJS tool that fetches the torrent file information and send it to [qBittorrent](https://github.com/qbittorrent/qBittorrent), so you must have it installed first.
 
-Table of Contents
+## Table of Contents
   * [Install](#install)
     * [Configuration](#configuration)
   * [How to use](#how-to-use)
