@@ -128,7 +128,7 @@ class QbtAPI {
         savepath: params.savepath,
         category: params.category || ""
       }
-      await this.call("POST", "/command/download", apiData)
+      await this.call("POST", "/api/v2/torrents/add", apiData)
     } else {
       // no URLs to download
       logger.info("No URLs to download.")
