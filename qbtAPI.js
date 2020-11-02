@@ -58,7 +58,7 @@ class QbtAPI {
   async authenticate() {
     let self = this
     let baseUrl = "http://" + this.apiHost + ":" + this.apiPort
-    let url = baseUrl + "/login"
+    let url = baseUrl + "/api/v2/auth/login"
     // prepare options
     let options = {
       method: "POST",
