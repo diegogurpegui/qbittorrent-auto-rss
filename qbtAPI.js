@@ -108,9 +108,9 @@ class QbtAPI {
    * Gets the qBittorrent version of the server
    * @returns {object} appVersion, apiVersion
    */
-  getVersion() {
-    const appVersion = this.call("GET", "/version");
-    const apiVersion = this.call("GET", "/webapiVersion");
+  async getVersion() {
+    const appVersion = await this.call("GET", "/version");
+    const apiVersion = await this.call("GET", "/webapiVersion");
     return { appVersion, apiVersion };
   }
 
