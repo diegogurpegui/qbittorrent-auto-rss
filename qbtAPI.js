@@ -109,8 +109,8 @@ class QbtAPI {
    * @returns {object} appVersion, apiVersion
    */
   async getVersion() {
-    const appVersion = await this.call("GET", "/version");
-    const apiVersion = await this.call("GET", "/webapiVersion");
+    const appVersion = await this.call("GET", "/api/v2/app/version");
+    const apiVersion = await this.call("GET", "/api/v2/app/webapiVersion");
     return { appVersion, apiVersion };
   }
 
